@@ -24,3 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.section {
+  @apply px-4 lg:px-27.5 pt-32;
+}
