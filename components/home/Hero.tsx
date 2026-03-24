@@ -7,8 +7,6 @@ const Hero = async () => {
     const heroData = await getHero()
     const { images } = heroData.hero || {}
 
-    console.log(heroData)
-
     return (
         <section className="relative overflow-hidden">
             {/* Ambient background glow */}
