@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavbarWrapper from "@/components/common/NavbarWrapper";
 import { getNavbar } from "@/lib/queries/navbarData";
+import { getTheme } from "@/lib/queries/colorPalettQuery";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +27,16 @@ export default async function RootLayout({
 }>) {
 
   const navbarData = await getNavbar()
+  const theme = await getTheme();
+  const bg = theme.background.homebg || "";
+  const solidBg = bg.match(/#[a-fA-F0-9]{3,6}/)?.[0] || bg;
+
   return (
-    <html lang="en">
+    <html lang="en"
+    style={{ background: solidBg, }}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+      >
         <NavbarWrapper navbarData={navbarData} />
 
         {children}
