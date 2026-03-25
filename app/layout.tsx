@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavbarWrapper from "@/components/common/NavbarWrapper";
+import Footer from "@/components/common/Footer";
 import { getNavbar } from "@/lib/queries/navbarData";
+import { getFooter } from "@/lib/queries/footerData";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,15 +27,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const navbarData = await getNavbar()
+  const [navbarData, footerData] = await Promise.all([
+    getNavbar(),
+    getFooter()
+  ])
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
         <NavbarWrapper navbarData={navbarData} />
 
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
+
+        <Footer footerData={footerData} />
       </body>
     </html>
   );
