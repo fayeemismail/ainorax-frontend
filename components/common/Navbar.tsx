@@ -46,10 +46,9 @@ const Navbar = ({
                 <Image
                   src={navbarData.logoImage}
                   alt="logo"
-                  height={36}
                   width={130}
-                  className="object-contain drop-shadow-sm"
-                  priority
+                  height={36}
+                  className="h-14 w-auto object-contain"
                 />
               ) : (
                 <span className="text-sm font-bold text-white tracking-tight whitespace-nowrap">
@@ -177,7 +176,7 @@ const Navbar = ({
           md:hidden
           overflow-hidden
           transition-all duration-500 ease-in-out
-          ${menuOpen ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'}
+          ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
         `}
       >
         <div
