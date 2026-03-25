@@ -5,6 +5,7 @@ import NavbarWrapper from "@/components/common/NavbarWrapper";
 import Footer from "@/components/common/Footer";
 import { getNavbar } from "@/lib/queries/navbarData";
 import { getFooter } from "@/lib/queries/footerData";
+import { getTheme } from "@/lib/queries/colorPalettQuery";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +32,16 @@ export default async function RootLayout({
     getNavbar(),
     getFooter()
   ])
+  const theme = await getTheme();
+  const bg = theme.background.homebg || "";
+  const solidBg = bg.match(/#[a-fA-F0-9]{3,6}/)?.[0] || bg;
 
   return (
-    <html lang="en">
+    <html lang="en"
+    style={{ background: solidBg, }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
-        >
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <NavbarWrapper navbarData={navbarData} />
 
         <main className="flex-grow">
