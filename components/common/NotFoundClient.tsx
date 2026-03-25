@@ -106,7 +106,7 @@ export default function NotFoundClient({ data, theme }: NotFoundClientProps) {
             className="rounded-[40px] border border-white/10 backdrop-blur-xl shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] p-10 md:p-16 text-center relative overflow-hidden"
           >
             {/* Decorative Icon */}
-            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+            <div className="hidden md:block absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
               <ShieldQuestion size={180} strokeWidth={1} />
             </div>
 
