@@ -6,6 +6,7 @@ import Footer from "@/components/common/Footer";
 import { getNavbar } from "@/lib/queries/navbarData";
 import { getFooter } from "@/lib/queries/footerData";
 import { getTheme } from "@/lib/queries/colorPalettQuery";
+import PageLoader from "@/components/common/PageLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,17 +38,21 @@ export default async function RootLayout({
   const solidBg = bg.match(/#[a-fA-F0-9]{3,6}/)?.[0] || bg;
 
   return (
-    <html lang="en"
-    style={{ background: solidBg, }}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" style={{ background: solidBg }}>
+      <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Loader sits on top of everything, unmounts after window.load fires */}
+        <PageLoader />
+ 
         <NavbarWrapper navbarData={navbarData} />
-
+ 
         <main className="flex-grow">
           {children}
         </main>
-
+ 
         <Footer footerData={footerData} />
       </body>
     </html>

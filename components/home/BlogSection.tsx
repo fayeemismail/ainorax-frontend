@@ -63,25 +63,20 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
   const bgStyle = resolveColor(backgroundColor, "bg");
   const textStyle = resolveColor(textColor, "text");
   const accentStyle = resolveColor(accentColor, "text");
-
   const cardBgStyle = resolveColor(cardBackgroundColor, "bg");
   const cardTextStyle = resolveColor(cardTextColor || textColor, "text");
 
   const isTailwindBg = !backgroundColor?.startsWith("#") && !backgroundColor?.startsWith("rgb");
   const isTailwindText = !textColor?.startsWith("#") && !textColor?.startsWith("rgb");
   const isTailwindAccent = !accentColor?.startsWith("#") && !accentColor?.startsWith("rgb");
-
   const isTailwindCardBg = !cardBackgroundColor?.startsWith("#") && !cardBackgroundColor?.startsWith("rgb");
   const isTailwindCardText = !cardTextColor?.startsWith("#") && !cardTextColor?.startsWith("rgb");
 
-  // Animation variants
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.2 },
     },
   };
 
@@ -90,18 +85,21 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut" as const,
-      },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
   return (
-    <section 
+    <section
       style={bgStyle}
       className={`py-24 ${isTailwindBg ? backgroundColor : ""} relative overflow-hidden`}
     >
+      {/* Preconnect to Sanity CDN so image DNS is resolved early */}
+      {/* 
+        Add this to your layout.tsx <head> instead for best results:
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+      */}
+
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-5">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-500 blur-3xl" />
         <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-indigo-500 blur-3xl" />
@@ -110,7 +108,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-2xl">
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -119,7 +117,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
             >
               Our Blog
             </motion.span>
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -128,7 +126,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
             >
               {heading}
             </motion.h2>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -138,14 +136,14 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
               {subheading}
             </motion.p>
           </div>
-          
+
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Link 
-              href="/blog" 
+            <Link
+              href="/blog"
               style={accentStyle}
               className={`group flex items-center gap-2 font-semibold hover:gap-3 transition-all duration-300 ${isTailwindAccent ? accentColor : ""}`}
             >
@@ -154,16 +152,16 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
           </motion.div>
         </div>
 
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {selectedPosts.map((post) => (
-            <motion.article 
-              key={post._id} 
+          {selectedPosts.map((post, index) => (
+            <motion.article
+              key={post._id}
               variants={itemVariants}
               style={cardBgStyle}
               className={`group backdrop-blur-sm border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full ${isTailwindCardBg ? cardBackgroundColor : ""}`}
@@ -171,9 +169,15 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
               <div className="relative h-64 w-full overflow-hidden">
                 {post.mainImage ? (
                   <Image
-                    src={urlFor(post.mainImage).url()}
+                    src={urlFor(post.mainImage).width(800).url()}
                     alt={post.title}
                     fill
+                    // ✅ KEY FIX: priority=true disables lazy loading so images
+                    // start fetching immediately, not when they scroll into view.
+                    // Only do this for the first 3 visible cards.
+                    priority={index < 3}
+                    // ✅ Tells the browser what size to expect, avoids oversized fetches
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 ) : (
@@ -182,11 +186,14 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+
                 {post.categories && post.categories.length > 0 && (
                   <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                     {post.categories.slice(0, 2).map((cat, i) => (
-                      <span key={i} className="px-3 py-1 bg-white/90 backdrop-blur-md text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-white/90 backdrop-blur-md text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm"
+                      >
                         {cat}
                       </span>
                     ))}
@@ -199,10 +206,10 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
                   {post.publishedAt && (
                     <span className="flex items-center gap-1" style={cardTextStyle}>
                       <Calendar className="w-3 h-3" />
-                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
+                      {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </span>
                   )}
@@ -214,24 +221,22 @@ const BlogSection: React.FC<BlogSectionProps> = ({ data }) => {
                   )}
                 </div>
 
-                <h3 
+                <h3
                   style={cardTextStyle}
-                  className={`text-2xl font-bold mb-4 line-clamp-2 leading-tight transition-colors duration-300 ${isTailwindCardText ? (cardTextColor || textColor) : ""}`}
+                  className={`text-2xl font-bold mb-4 line-clamp-2 leading-tight transition-colors duration-300 ${isTailwindCardText ? cardTextColor || textColor : ""}`}
                 >
-                  <Link href={`/blog/${post.slug.current}`}>
-                    {post.title}
-                  </Link>
+                  <Link href={`/blog/${post.slug.current}`}>{post.title}</Link>
                 </h3>
 
-                <p 
+                <p
                   style={cardTextStyle}
-                  className={`opacity-70 line-clamp-3 mb-6 flex-grow ${isTailwindCardText ? (cardTextColor || textColor) : ""}`}
+                  className={`opacity-70 line-clamp-3 mb-6 flex-grow ${isTailwindCardText ? cardTextColor || textColor : ""}`}
                 >
                   {post.excerpt}
                 </p>
 
                 <div className="mt-auto">
-                  <Link 
+                  <Link
                     href={`/blog/${post.slug.current}`}
                     style={accentStyle}
                     className={`inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest hover:gap-3 transition-all duration-300 ${isTailwindAccent ? accentColor : ""}`}
